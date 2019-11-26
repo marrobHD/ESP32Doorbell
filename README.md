@@ -18,8 +18,24 @@
 
 ESP32 doorbell with a display and camera that works with ESPHome and HomeAssistant
 
+## Features
+
+
 ## Installation
 Comming soon
+
+
+## Configuration
+
+
+
+
+## Authors & contributors
+
+The original setup of this repository is by [Marlon][marrobHD].
+
+For a full list of all authors and contributors,
+check [the contributor's page][contributors].
 
 
 
@@ -41,6 +57,7 @@ Comming soon
 [commits]: https://github.com/marrobHD/ESP32Doorbell/commits/master
 [discord]: https://discord.gg/ND4emRS
 [discord-shield]: https://img.shields.io/discord/579704220970909717.svg?style=for-the-badge
+[contributors]: https://github.com/hassio-addons/addon-ssh/graphs/contributors
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [license-shield]: https://img.shields.io/github/license/marrobHD/ESP32Doorbell.svg?style=for-the-badge
 [maintenance-shield]: https://img.shields.io/badge/maintainer-marrobHD-blue.svg?style=for-the-badge
