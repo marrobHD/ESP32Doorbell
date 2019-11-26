@@ -1,0 +1,21 @@
+#lovelace.yaml
+#======================================================
+  - entities:
+      - entity: input_select.doorbell_select_ring
+      - entity: input_text.doorbell_ring_1_name
+      - entity: input_text.doorbell_ring_2_name
+      - entity: input_text.doorbell_ring_3_name
+      - entity: switch.esp32_doorbell_frontdoor
+      - entity: input_boolean.doorbell_ring_chime
+      - entity: binary_sensor.esp32_doorbell_frontdoor_button
+      - entity: sensor.esp32_doorbell_frontdoor_humidity
+      - entity: sensor.esp32_doorbell_frontdoor_temperature
+      - entity: switch.esp32_doorbell_frontdoor_restart
+      - entity: camera.esp32_doorbell_frontdoor_camera
+      - entity: automation.doorbell_ring1_chime
+      - entity: automation.doorbell_ring2_chime
+      - entity: automation.doorbell_ring3_chime
+    show_header_toggle: false
+    title: Doorbell frontdoor
+    type: entities
+#======================================================

@@ -1,0 +1,794 @@
+substitutions:
+  device_name: "ESP32 Doorbell" # Change the device name for entity name in ESPHome & HomeAssistant
+  area_name: "Frontdoor" # Change the area name
+  wifi_ssid: "mywifissid"
+  wifi_password: "mywifipassword"
+  fallback_ssid: "Doorbell Fallback Hotspot" # max 32 characters
+  fallback_password: "z1wJOulNLdEK"
+  api: "myesphomeapipassword"
+  ota: "myesphomeotapassword"
+
+
+
+  # HA Entitys
+  ring_set_state: "input_select.doorbell_select_ring"
+  alarm_control_panel: "alarm_control_panel.house"
+  weather_dark_sky: "weather.dark_sky" # Isnt in use; only for tests
+  weather_summary: "sensor.dark_sky_summary"
+  weather_temp: "sensor.dark_sky_temperature"
+  ring_name_1: "input_text.doorbell_ring_1_name"
+  ring_name_2: "input_text.doorbell_ring_2_name"
+  ring_name_3: "input_text.doorbell_ring_3_name"
+  ringing_text_popup: "input_text.doorbell_ringing_text" # Popup message on display(not tested)
+  ring_overlay_text: "input_text.doorbell_clear_text" # Overlays some text
+
+
+esphome:
+  name: "esp32_doorbell" # ESPHome device name
+  platform: "ESP32" # Dev Board platform
+  board: "esp-wrover-kit" # Dev Board
+
+
+  on_boot:
+    priority: 10
+    then:
+      - homeassistant.service:
+          service: input_select.select_option
+          data:
+            entity_id: "${ring_set_state}"
+            option: ring1
+
+wifi:
+  #  ssid: "${wifi_ssid}"
+  #  password: "${wifi_password}"
+  fast_connect: on
+  networks:
+  - ssid: "${wifi_ssid}"
+    password: "${wifi_password}"
+    hidden: true # If the WIFI is hidden
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${fallback_ssid}" # max 32 characters
+    password: "${fallback_password}" # Fallback AP mode; Please CHANGE this PASSWORD
+
+captive_portal: # Enables the Captive Portal feature
+
+
+# Enable Home Assistant API
+api:
+  password: "${api}" # change this password
+
+ota:
+  password: "${ota}" # change this password
+
+# Enable logging
+logger:
+
+esp32_touch:
+  setup_mode: False
+
+web_server:
+  port: 80
+
+# Example configuration entry
+esp32_camera:
+  external_clock:
+    pin: GPIO0
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO26
+    scl: GPIO27
+  data_pins: [GPIO5, GPIO18, GPIO19, GPIO21, GPIO36, GPIO39, GPIO34, GPIO35]
+  vsync_pin: GPIO25
+  href_pin: GPIO23
+  pixel_clock_pin: GPIO22
+  power_down_pin: GPIO32
+
+  # Image settings
+  name: "${device_name} ${area_name} Camera"
+  # ...
+
+globals:
+  - id: button_counter
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+font:
+  - file: 'slkscr.ttf'
+    id: font1
+    size: 8
+  - file: 'slkscr.ttf'
+    id: armfont
+    size: 7
+
+  - file: 'BebasNeue-Regular.ttf'
+    id: font2
+    size: 48
+
+  - file: 'arial.ttf'
+    id: font3
+    size: 12
+
+  - file: 'arial.ttf'
+    id: font5
+    size: 9
+
+  - file: 'BebasNeue-Regular.ttf'
+    id: font4
+    size: 40
+
+
+image:
+  - file: "raspberry.png"
+    id: raspberry
+    resize: 100x100
+
+switch:
+  - platform: restart
+    name: "${device_name} ${area_name} Restart"
+  - platform: gpio
+    name: "${device_name} ${area_name} Ring" # Remember to change the switch in the automations!
+    pin: GPIO04
+    id: haustuer_ring_ring
+    on_turn_on:
+      then:
+        - delay: 4s
+        - homeassistant.service:
+            service: input_select.select_option
+            data:
+              entity_id: "${ring_set_state}"
+              option: ring1
+        - logger.log: "Tryed to set the Ring to ring1"
+    on_turn_off:
+      then:
+        - delay: 4s
+        - homeassistant.service:
+            service: input_select.select_option
+            data:
+              entity_id: "${ring_set_state}"
+              option: ring1
+        - logger.log: "Tryed to set the Ring to ring1"
+
+text_sensor:
+  - platform: homeassistant
+    entity_id: "${alarm_control_panel}"
+    internal: true
+    id: alarm_state
+  - platform: homeassistant
+    entity_id: ${weather_dark_sky} #engl summary
+    internal: true
+    id: weather_summary
+  - platform: homeassistant
+    entity_id: "${weather_summary}" #summary in your language
+    internal: true
+    id: weather_summary1
+  - platform: homeassistant
+    entity_id: "{$weather_temp}"
+    internal: true
+    id: out_temp
+  - platform: homeassistant
+    entity_id: "{$ring_name_1}"
+    internal: true
+    id: haustuer_ring_1_text
+    internal: true
+  - platform: homeassistant
+    entity_id: "{$ring_name_2}"
+    id: haustuer_ring_2_text
+    internal: true
+  - platform: homeassistant
+    entity_id: "{$ring_name_3}"
+    id: haustuer_ring_3_text
+    internal: true
+  - platform: homeassistant
+    entity_id: "{$ringing_text_popup}"
+    id: haustuer_ring_ringing
+    internal: true
+  - platform: homeassistant
+    entity_id: "${ring_set_state}"
+    id: tuerkligel_haustuer_select_ring
+    internal: true
+  - platform: homeassistant
+    entity_id: "{$ring_overlay_text}"
+    id: haustuer_ring_clear_text
+    internal: true
+
+
+# Example configuration entry
+deep_sleep:
+  wakeup_pin: GPIO14
+  wakeup_pin_mode: INVERT_WAKEUP
+  id: deep_sleep_1
+
+binary_sensor:
+  - platform: esp32_touch
+    name: "${device_name} ${area_name} Touch"
+    pin: GPIO14 # GPIO14 for touch sensor
+    threshold: 480
+    on_multi_click:
+    - timing:
+        - ON for at most 1s
+        - OFF for at most 1s
+        - ON for at most 1s
+        - OFF for at least 0.2s
+      then:
+        - logger.log: "Double Clicked"
+        - switch.turn_on: haustuer_ring_ring
+        - display.page.show: ring_page2
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page3
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page4
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page2
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page3
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page4
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page2
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page3
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page4
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: weather_page1
+        - component.update: display_ring
+        - delay: 2s
+        - display.page.show: weather_page2
+        - component.update: display_ring
+        - delay: 2s
+        - display.page.show: sometext_page1
+        - component.update: display_ring
+        - delay: 3s
+        - display.page.show: someimage_page1
+        - component.update: display_ring
+        - delay: 2s
+        - switch.turn_off: haustuer_ring_ring
+        - homeassistant.service:
+            service: input_select.select_option
+            data:
+              entity_id: "${ring_set_state}"
+              option: ring1
+        - lambda: |-
+            id(button_counter) =  (id(button_counter) =0 ) % 0;
+            ESP_LOGD("main", "Global value is: %d", id(button_counter));
+        - display.page.show: ring_page1
+        - component.update: display_ring
+        - deep_sleep.enter: deep_sleep_1
+    - timing:
+        - ON for 1s to 2s
+        - OFF for at least 0.5s
+      then:
+        - logger.log: "Single Long Clicked"
+    - timing:
+        - ON for at most 1s
+        - OFF for at least 0.5s
+      then:
+        - logger.log: "Single Short Clicked"
+        - lambda: |-
+            id(button_counter) =  (id(button_counter) +1 ) % 3;
+            ESP_LOGD("main", "Global value is: %d", id(button_counter));
+        #- display.page.show_next: display_ring
+        - component.update: display_ring
+        - homeassistant.service:
+            service: input_select.select_next
+            data:
+              entity_id: "${ring_set_state}"
+  - platform: gpio
+    pin:
+      number: GPIO2 # Button via GPIO2
+      inverted: True
+    name: "${device_name} ${area_name} Button"
+    id: ring_button2
+    on_multi_click:
+    - timing:
+        - ON for at most 1s
+        - OFF for at most 1s
+        - ON for at most 1s
+        - OFF for at least 0.2s
+      then:
+        - logger.log: "Double Clicked"
+        - switch.turn_on: haustuer_ring_ring
+        - display.page.show: ring_page2
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page3
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page4
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page2
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page3
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page4
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page2
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page3
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: ring_page4
+        - component.update: display_ring
+        - delay: 1s
+        - display.page.show: weather_page1
+        - component.update: display_ring
+        - delay: 2s
+        - display.page.show: weather_page2
+        - component.update: display_ring
+        - delay: 2s
+        - display.page.show: sometext_page1
+        - component.update: display_ring
+        - delay: 3s
+        - display.page.show: someimage_page1
+        - component.update: display_ring
+        - delay: 2s
+        - switch.turn_off: haustuer_ring_ring
+        - homeassistant.service:
+            service: input_select.select_option
+            data:
+              entity_id: "${ring_set_state}"
+              option: ring1
+        - lambda: |-
+            id(button_counter) =  (id(button_counter) =0 ) % 0;
+            ESP_LOGD("main", "Global value is: %d", id(button_counter));
+        - display.page.show: ring_page1
+        - component.update: display_ring
+        - deep_sleep.enter: deep_sleep_1
+    - timing:
+        - ON for 1s to 2s
+        - OFF for at least 0.5s
+      then:
+        - logger.log: "Single Long Clicked"
+    - timing:
+        - ON for at most 1s
+        - OFF for at least 0.5s
+      then:
+        - logger.log: "Single Short Clicked"
+        - lambda: |-
+            id(button_counter) =  (id(button_counter) +1 ) % 3;
+            ESP_LOGD("main", "Global value is: %d", id(button_counter));
+        #- display.page.show_next: display_ring
+        - component.update: display_ring
+        - homeassistant.service:
+            service: input_select.select_next
+            data:
+              entity_id: "${ring_set_state}"
+  - platform: status
+    name: "${device_name} ${area_name} Status"
+    on_state:
+      then:
+        - homeassistant.service:
+            service: input_select.select_option
+            data:
+              entity_id: "${ring_set_state}"
+              option: ring1
+        - logger.log: "Tryed to set the Ring to ring1"
+
+sensor:
+  - platform: dht
+    pin: GPIO15 # GPIO for temperature sensor
+    model: DHT11 # DHT11 only in range from 0°C to 50°C! For -40°C to +125°C use a DHT22 sensor(https://www.amazon.de/DHT22-AM2302-Digital-Temperatur-Feuchtesensor/dp/B01DB8JH4M/ref=asc_df_B01DB8JH4M/)
+    temperature:
+      name: "${device_name} ${area_name} Temperature"
+      id: inside_temperature
+    humidity:
+      name: "${device_name} ${area_name} Humidity"
+      id: inside_humidity
+    update_interval: 60s
+
+
+#interval:
+#  - interval: 5s
+#    then:
+#      - display.page.show_next: display
+#      - component.update: display
+
+time:
+  - platform: homeassistant
+    id: hatime
+
+i2c:
+  sda: GPIO12
+  scl: GPIO13
+
+display:
+  - platform: ssd1306_i2c
+    model: "SH1106 128x64"
+    #reset_pin: D0
+    address: 0x3C
+    id: display_ring
+    pages:
+      - id: ring_page1
+        lambda: |-
+          if (id(button_counter) == 0) {
+            // global value is 0
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_ringing).state.c_str());
+
+          it.printf(1, 35, id(armfont), TextAlign::TOP_LEFT, "%s", id(haustuer_ring_clear_text).state.c_str());
+          it.printf(20, 35, id(armfont), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_1_text).state.c_str());
+          it.printf(62, 35, id(armfont), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_2_text).state.c_str());
+          it.printf(104, 35, id(armfont), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_3_text).state.c_str());
+
+          it.filled_circle(20, 53, 10);
+          it.circle(62, 53, 10);
+          it.circle(104, 53, 10);
+          } else {}
+          if (id(button_counter) == 1) {
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_ringing).state.c_str());
+
+          it.printf(1, 35, id(armfont), TextAlign::TOP_LEFT, "%s", id(haustuer_ring_clear_text).state.c_str());
+          it.printf(20, 35, id(armfont), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_1_text).state.c_str());
+          it.printf(62, 35, id(armfont), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_2_text).state.c_str());
+          it.printf(104, 35, id(armfont), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_3_text).state.c_str());
+
+          it.circle(20, 53, 10);
+          it.filled_circle(62, 53, 10);
+          it.circle(104, 53, 10);
+          } else {}
+          if (id(button_counter) == 2) {
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_ringing).state.c_str());
+
+          it.printf(1, 35, id(armfont), TextAlign::TOP_LEFT, "%s", id(haustuer_ring_clear_text).state.c_str());
+          it.printf(20, 35, id(armfont), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_1_text).state.c_str());
+          it.printf(62, 35, id(armfont), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_2_text).state.c_str());
+          it.printf(104, 35, id(armfont), TextAlign::TOP_CENTER, "%s", id(haustuer_ring_3_text).state.c_str());
+
+          it.circle(20, 53, 10);
+          it.circle(62, 53, 10);
+          it.filled_circle(104, 53, 10);
+          } else {}
+      - id: ring_page2
+        lambda: |-
+          if (id(button_counter) == 0) {
+            // global value is 0
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "Ringing by %s...", id(haustuer_ring_1_text).state.c_str());
+
+          it.filled_circle(20, 53, 10);
+          it.circle(62, 53, 10);
+          it.circle(104, 53, 10);
+          } else {}
+          if (id(button_counter) == 1) {
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "Ringing by %s...", id(haustuer_ring_2_text).state.c_str());
+
+          it.filled_circle(20, 53, 10);
+          it.circle(62, 53, 10);
+          it.circle(104, 53, 10);
+          } else {}
+          if (id(button_counter) == 2) {
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "Ringing by %s...", id(haustuer_ring_3_text).state.c_str());
+
+          it.filled_circle(20, 53, 10);
+          it.circle(62, 53, 10);
+          it.circle(104, 53, 10);
+          } else {}
+      - id: ring_page3
+        lambda: |-
+          if (id(button_counter) == 0) {
+            // global value is 0
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "Ringing by %s...", id(haustuer_ring_1_text).state.c_str());
+
+          it.circle(20, 53, 10);
+          it.filled_circle(62, 53, 10);
+          it.circle(104, 53, 10);
+          } else {}
+          if (id(button_counter) == 1) {
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "Ringing by %s...", id(haustuer_ring_2_text).state.c_str());
+
+          it.circle(20, 53, 10);
+          it.filled_circle(62, 53, 10);
+          it.circle(104, 53, 10);
+          } else {}
+          if (id(button_counter) == 2) {
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "Ringing by %s...", id(haustuer_ring_3_text).state.c_str());
+
+          it.circle(20, 53, 10);
+          it.filled_circle(62, 53, 10);
+          it.circle(104, 53, 10);
+          } else {}
+      - id: ring_page4
+        lambda: |-
+          if (id(button_counter) == 0) {
+            // global value is 0
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "Ringing by %s...", id(haustuer_ring_1_text).state.c_str());
+
+          it.circle(20, 53, 10);
+          it.circle(62, 53, 10);
+          it.filled_circle(104, 53, 10);
+          } else {}
+          if (id(button_counter) == 1) {
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "Ringing by %s...", id(haustuer_ring_2_text).state.c_str());
+
+          it.circle(20, 53, 10);
+          it.circle(62, 53, 10);
+          it.filled_circle(104, 53, 10);
+          } else {}
+          if (id(button_counter) == 2) {
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          //it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(16, 0, id(font5), TextAlign::TOP_CENTER , "%.1f°C", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(109, 0, id(font5), TextAlign::TOP_CENTER , "%.1f%%", id(inside_humidity).state);
+          }
+          // Print time in HH:MM format
+          it.strftime(64, 8, id(armfont), TextAlign::TOP_CENTER, "%H:%M", id(hatime).now());
+
+          it.printf(64, 15, id(font3), TextAlign::TOP_CENTER, "Ringing by %s...", id(haustuer_ring_3_text).state.c_str());
+
+          it.circle(20, 53, 10);
+          it.circle(62, 53, 10);
+          it.filled_circle(104, 53, 10);
+          } else {}
+      - id: weather_page1
+        lambda: |-
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          // Print "Alarm State: <state>" in top center
+          it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "%s", id(alarm_state).state.c_str());
+
+          // Print time in HH:MM format
+          it.strftime(0, 60, id(font2), TextAlign::BASELINE_LEFT, "%H:%M", id(hatime).now());
+
+
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(122, 37, id(font3), TextAlign::TOP_RIGHT , "%.1f°", id(inside_temperature).state);
+          }
+
+          // Print outside temperature (from homeassistant sensor)
+          if (id(inside_humidity).has_state()) {
+            it.printf(127, 60, id(font3), TextAlign::BASELINE_RIGHT , "%.1f%%", id(inside_humidity).state);
+          }
+      - id: weather_page2
+        lambda: |-
+          // Print "${device_name}" in top center.
+          it.printf(64, 0, id(font1), TextAlign::TOP_CENTER, "${area_name}");
+
+          it.printf(64, 8, id(armfont), TextAlign::TOP_CENTER, "Outdoor");
+
+          it.printf(0, 23, id(font1), TextAlign::BASELINE_LEFT, "%s", id(weather_summary).state.c_str());
+          //it.printf(127, 16, id(font1), TextAlign::TOP_RIGHT, "%s", id(weather_summary1).state.c_str());
+
+          // Print inside temperature (from homeassistant sensor)
+          if (id(inside_temperature).has_state()) {
+            it.printf(0, 25, id(font1), TextAlign::TOP_LEFT, "Innen: %.1f°C", id(inside_temperature).state);
+          }
+          it.printf(0, 32, id(font1), TextAlign::TOP_LEFT, "Aussen: %s°C", id(out_temp).state.c_str());
+
+          // Print inside temperature (from homeassistant sensor)
+          it.printf(127, 51, id(font3), TextAlign::TOP_RIGHT, "%s°C", id(out_temp).state.c_str());
+
+
+          it.line(0, 48, 128, 48);
+
+          // Print time in HH:MM format
+          it.strftime(0, 60, id(font3), TextAlign::BASELINE_LEFT, "%H:%M", id(hatime).now());
+
+      - id: sometext_page1
+        lambda: |-
+          it.line(0, 0, 100, 50);
+          it.filled_circle(25, 25, 10);
+          it.print(0, 41, id(font3), "This is page 2!");
+      - id: someimage_page1
+        lambda: |-
+          it.image(10, 10, id(raspberry));

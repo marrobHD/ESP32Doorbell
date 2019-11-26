@@ -1,0 +1,6 @@
+#input_boolean.yaml
+#======================================================
+doorbell_ring_chime:
+  name: Chime for all
+  icon: mdi:bell-ring
+#======================================================

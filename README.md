@@ -1,109 +1,90 @@
 # ESP32Doorbell
-🔔 ESPHome ESP32 Doorbell with OLED display 🔔
-<!-- 🎉 Release of ESP32 Doorbell 0.0.0 -->
+🔔 A ESPHome ESP32 Doorbell with OLED display 🔔
+
+[![GitHub Release][releases-shield]][releases]
+[![License][license-shield]](LICENSE.md)
+
+![Project Maintenance][maintenance-shield]
+[![GitHub Activity][commits-shield]][commits]
+[![Discord][discord-shield]][discord]
+![Community Forum][forum-shield]
+
+[![Twitter][twitter]][twitter]
+[![Github][github]][github]
+
+<!-- 🎉 Release of ESP32 Doorbell 0.0.1 -->
 
 ## About
 
-ESP32 doorbell with a display and camera that works with ESPHome and HomeAssistant
+This is the code for a ESP32 doorbell with a display and camera that works with ESPHome and HomeAssistant.
+<!-- also includes... -->
 
-## Installation
 
-1. Download this Repository, import it in Platformio, change the mqtt and wifi settings and click on upload(ALT+CMD+U)
-```txt
-https://github.com/marrobHD/Mqtt-RFID-Player/releases
-```
-2. Open Files\EspEasy\FlashESP8266 select your COM port and sonoff.bin and click flash
+## Features
 
-3. Open Files\EspEasy\Termite.exe to use it to configure your devboard. Replace your WIFI and MqTT Info, paste and hit enter
-```txt
-Backlog ssid1 YOURSSID; password1 YOURPASSWORD; MqttHost YOURMQTT; MqttUser YOURMQTTTUSER; MqttPassword YOURMQTTPASSWORD; MqttPort 1883
-```
-4. Conntect 3 Buttons eg: Wire1 D1 Wire2 GND. Setup your buttos in Tasmota.
-![](Files/Tasmota_config.png)
-5. Setup this rules in Console. Hit after paste "Enter".
-```txt
-rule1 on switch1#state=3 do publish stat/button_1/TYPE {"type":hold_2sec} endon on switch1#state=2 do publish stat/button_1/TYPE {"type":single_press} endon on switch1#state=2 do event setvar1=+1 endon on event#setvar1 do counter %value% endon on event#getvar1 do counter endon on event#setvar1 do publish stat/button_1/log %value% endon on switch1#state=2 do event toggling1=%var1% endon on event#toggling1<1 do event setvar1=0 endon on event#toggling1>0 do event setvar1=0 endon
-```
-```txt
-rule2 on switch2#state=3 do publish stat/button_2/TYPE {"type":hold_2sec} endon on switch2#state=2 do publish stat/button_2/TYPE {"type":single_press} endon on switch2#state=2 do event setvar2=+1 endon on event#setvar2 do counter2 %value% endon on event#getvar2 do counter2 endon on event#setvar2 do publish stat/button_2/log %value% endon on switch2#state=2 do event toggling2=%var2% endon on event#toggling2<1 do event setvar2=0 endon on event#toggling2>0 do event setvar2=0 endon
-```
-```txt
-rule3 on switch3#state=3 do publish stat/button_3/TYPE {"type":hold_2sec} endon on switch3#state=2 do publish stat/button_3/TYPE {"type":single_press} endon on switch3#state=2 do event setvar3=+1 endon on event#setvar3 do counter3 %value% endon on event#getvar3 do counter3 endon on event#setvar3 do publish stat/button_3/log %value% endon on switch3#state=2 do event toggling3=%var3% endon on event#toggling3<1 do event setvar3=0 endon on event#toggling3>0 do event setvar3=0 endon
-```
-```txt
-rule1 on
-```
-```txt
-rule2 on
-```
-```txt
-rule3 on
-```
-2. Copy the "Files\HomeAssistant\automations.yaml" text into your automations.
+The code for the ESP32 doorbell, of course, provides the code for ESPHome and the configuration for HomeAssistant. Additionally, it comes also with these features:
 
-3. Copy the "Files\HomeAssistant\scripts.yaml" text into your scripts.
+- Access your command line right from the Home Assistant frontend!
+- Easy to change the configuration
+  - Only have to change the definitions at the top in the ESPHome config.
+  - Comes with all needed configurations.
+- Integrated camera module.
+- Ring to three different locations.
+- One button control design.
+- GUI displayed with a SH1106 128x64 OLED display.
+- Touch & push button compatibility.
+- HTML5 notifications with captured image from the camera module.
+- alarm state displayed.
+- Temperature and humidity text_sensor.
+- DarkSky weather displayed on the screen. (later with symbols and animations)
+- Ringtone on media_player device.
 
-4. Copy the "Files\HomeAssistant\input_number.yaml" text into your input_number.
 
-5. Copy the "Files\HomeAssistant\input_select.yaml" text into your input_select.
+## Installation & Configuration
 
-6. paste this into your lovelace configuration file:
+### Step 1
+Install [ESPHome][esphome] by following this guide: https://esphome.io/guides/getting_started_hassio.html.
 
-⮡ Lovelace yaml mode: paste it easy in your ui-lovelace.yaml
+### Step 2
+Copy the Folder `ESPHome` into `/config/` from HomeAssistant. Next you have to add the code in the following files into your HomeAssistant configuration: `automations.yaml`, `scripts.yaml`, `input_boolean.yaml`, `input_select.yaml` and `input_text.yaml`.
 
-⮡ Lovelace UI edit mode:
+### Step 3
+Now adjust the `esp32 doorbell.yaml` via the ESPHome editor. Do that also with your other configuration files.
 
-![](Files/lovelace_edit_ui.gif)
-```txt
-- input_select.musikbox_rfid
-- entity: automation.mqtt_rfid_music_player_tag1
-  name: Tag 1
-  tap_action: toggle
-- entity: automation.mqtt_rfid_music_player_tag2
-  name: Tag 2
-  tap_action: toggle
-- entity: automation.mqtt_rfid_music_player_zuruck
-  name: Zurück
-  tap_action: toggle
-- entity: automation.mqtt_rfid_music_player_pause
-  name: Pause
-  tap_action: toggle
-- entity: automation.mqtt_rfid_music_player_uberspringen
-  name: Skip
-  tap_action: toggle
-- entity: automation.mqtt_rfid_music_player_button3_help
-  name: Help Button
-  tap_action: toggle
-- entity: automation.mqtt_rfid_music_player_led_ausschaten
-  name: Led turn off
-  tap_action: toggle
-- entity: automation.mqtt_rfid_music_player_button1_hold_2sec
-  name: Button 1 2sec
-  tap_action: toggle
-- entity: automation.mqtt_rfid_music_player_button2_hold_2sec
-  name: Button 2 2sec
-  tap_action: toggle
-- type: divider
-  style:
-    height: 1px
-    width: 80%
-    margin-left: auto
-    margin-right: auto
-    background: '#0000FF'
-- entity: script.mqtt_rfid_player_tag1_play
-  name: Tag 1 abspielen
-- entity: script.mqtt_rfid_player_tag2_play
-  name: Tag 2 abspielen
-- entity: script.mqtt_rfid_player_back
-  name: Back
-- entity: script.mqtt_rfid_player_next_track
-  name: Nächster Track
-- entity: script.mqtt_rfid_player_pause
-  name: Pause
-- entity: script.mqtt_rfid_player_led_off
-  name: Led off
-- entity: script.mqtt_rfid_player_reset
-  name: Reset resume
-```
+### Step 4
+Now you´re ready to flash. Now you have to click on `validate` and if get "esp32 doorbell.yaml is valid 👍" you can flash the ESP32 camera module via an FTDI USB flash adapter. If your configuration fails, check it again, fix the error and flash it.
 
-7. Restart homeassistant and have fun 🤖
+### Step 5
+Now check the serial console of the ESPHome flasher tool and wait for the module to successfully connect to the wifi. Next you have to go to the integrations page in HomeAssistand and add the ESPHome flashed chip via its ip address you saw in the serial console of the `ESPHome flasher`.
+
+### Step 6
+Restart HomeAssistant and you´re ready to test it.
+
+FEEL FREE TO POST ISSUES
+
+
+## Authors & contributors
+
+The original setup of this repository is by [Marlon][marrobHD].
+
+For a full list of all authors and contributors,
+check [the contributor's page][contributors].
+
+
+
+[Troubleshooting]()
+
+[commits-shield]: https://img.shields.io/github/commit-activity/y/marrobHD/ESP32Doorbell.svg?style=for-the-badge
+[commits]: https://github.com/marrobHD/ESP32Doorbell/commits/master
+[discord]: https://discord.gg/ND4emRS
+[discord-shield]: https://img.shields.io/discord/579704220970909717.svg?style=for-the-badge
+[contributors]: https://github.com/marrobHD/ESP32Doorbell/graphs/contributors
+[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/marrobHD/ESP32Doorbell.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-marrobHD-blue.svg?style=for-the-badge
+[marrobHD]: https://github.com/marrobHD
+[releases-shield]: https://img.shields.io/github/release/marrobHD/ESP32Doorbell.svg?style=for-the-badge
+[releases]: https://github.com/marrobHD/ESP32Doorbell/releases
+[esphome]: https://esphome.io
+[twitter]: https://img.shields.io/twitter/follow/mar_robHD.svg?style=social
+[github]: https://img.shields.io/github/followers/marrobHD.svg?style=social
