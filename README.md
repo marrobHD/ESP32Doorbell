@@ -4,7 +4,7 @@
 
 ## About
 
-With the MqTT RFID Music Player you can play music(Spotify) with an RFID tag.
+ESP32 doorbell with a display and camera that works with ESPHome and HomeAssistant
 
 ## Installation
 
