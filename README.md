@@ -91,7 +91,7 @@ check [the contributor's page][contributors].
 [contributors]: https://github.com/hassio-addons/addon-ssh/graphs/contributors
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [license-shield]: https://img.shields.io/github/license/marrobHD/ESP32Doorbell.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/badge/maintainer-marrobHD-blue.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-Marlon-blue.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/marrobHD/ESP32Doorbell.svg?style=for-the-badge
 [releases]: https://github.com/marrobHD/ESP32Doorbell/releases
 [twitter]: https://img.shields.io/twitter/follow/TechxHome.svg?style=social
