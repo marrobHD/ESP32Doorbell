@@ -11,7 +11,7 @@
 //#define WLED_USE_H801 //H801 controller. Please uncomment #define WLED_USE_ANALOG_LEDS as well
 //#define WLED_USE_5CH_LEDS  //5 Channel H801 for cold and warm white
 
-#define BTNPIN  0  //button pin. Needs to have pullup (gpio0 recommended)
+#define BTNPIN  16  //button pin. Needs to have pullup (gpio0 recommended)
 #define IR_PIN  4  //infrared pin (-1 to disable)  MagicHome: 4, H801 Wifi: 0
 #define RLYPIN 12  //pin for relay, will be set HIGH if LEDs are on (-1 to disable). Also usable for standby leds, triggers,...
 #define AUXPIN -1  //debug auxiliary output pin (-1 to disable)
