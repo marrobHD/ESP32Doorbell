@@ -1,0 +1,10 @@
+#scripts.yaml
+#======================================================
+doorbell_select_ring1:
+  alias: Doorbell: Select ring1
+  sequence:
+  - data:
+      entity_id: input_select.tuerkligel_haustuer_select_ring
+      option: ring1
+    service: input_select.select_option
+#======================================================

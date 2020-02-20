@@ -1,0 +1,23 @@
+#input_text.yaml
+#======================================================
+  doorbell_ring_1_name:
+    name: Türkligel Ziel 1
+    min: 1
+    max: 10
+  doorbell_ring_2_name:
+    name: Türkligel Ziel 2
+    min: 1
+    max: 10
+  doorbell_ring_3_name:
+    name: Türkligel Ziel 3
+    min: 1
+    max: 10
+  doorbell_ringing_text:
+    name: Türkligel Ring text
+    min: 1
+    max: 25
+  doorbell_clear_text:
+    name: Türkligel Namen überchreiben
+    min: 1
+    max: 100
+#======================================================

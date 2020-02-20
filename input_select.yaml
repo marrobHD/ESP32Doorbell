@@ -1,0 +1,10 @@
+#input_select.yaml
+#======================================================
+doorbell_select_ring:
+  name: Select target for sound bell
+  options:
+    - ring1
+    - ring2
+    - ring3
+  initial: "ring1"
+#======================================================

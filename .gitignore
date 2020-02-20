@@ -1,0 +1,6 @@
+# ignore all logs
+*.log
+notes.yaml
+test.yaml
+# ignore the file literally named foo[01].txt
+foo\[01\].txt

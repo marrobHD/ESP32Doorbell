@@ -1,0 +1,115 @@
+#automations.yaml
+#======================================================
+- id: doorbell_ring1_chime
+  alias: Doorbell ring1 chime
+  trigger:
+  - entity_id: switch.esp32_doorbell_frontdoor # Change it to your doorbell switch
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_select.doorbell_select_ring
+    state: ring1
+  - condition: state
+    entity_id: input_boolean.doorbell_ring_chime
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.haustur # frontdoor sensor
+    state: 'off'
+  action:
+  - data:
+      data:
+        image: https://xxx.xxxxxxxxxxxx.xx/api/camera_proxy/camera.xxxxxxxxx?api_password=xxxxxxxxxxxx
+        tag: doorbell_marlon
+        target:
+        - marlonphone
+        - notebookxiaomi
+        - notebookxiaomichrome
+      message: The bell of Marlon was pressed
+      title: The bell of Marlon was pressed
+    service: notify.html
+  - data:
+      entity_id: media_player.marlon_zimmer
+      media_content_id: https://xxx.xxxxxxxxxxxx.xx/local/2U2.mp3
+      media_content_type: audio/mp4
+    service: media_player.play_media
+- id: doorbell_ring2_chime
+  alias: Doorbell ring2 chime
+  trigger:
+  - entity_id: switch.esp32_doorbell_frontdoor # Change it to your doorbell switch
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_select.doorbell_select_ring
+    state: ring2
+  - condition: state
+    entity_id: input_boolean.doorbell_ring_chime
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.haustur # frontdoor sensor
+    state: 'off'
+  action:
+  - data:
+      data:
+        image: https://xxx.xxxxxxxxxxxx.xx/api/camera_proxy/camera.xxxxxxxxx?api_password=xxxxxxxxxxxx
+        tag: doorbell_marlon
+        target:
+        - xxxphone
+        - xxxnotebook
+        - notebookxiaomichromexxx
+      message: The bell of XXX was pressed
+      title: The bell of XXX was pressed
+    service: notify.html
+  - data:
+      entity_id: media_player.marlon_zimmer
+      media_content_id: https://xxx.xxxxxxxxxxxx.xx/local/2U2.mp3
+      media_content_type: audio/mp4
+    service: media_player.play_media
+- id: doorbell_ring3_chime
+  alias: Doorbell ring3 chime
+  trigger:
+  - entity_id: switch.esp32_doorbell_frontdoor # Change it to your doorbell switch
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_select.doorbell_select_ring
+    state: ring3
+  - condition: state
+    entity_id: input_boolean.doorbell_ring_chime
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.haustur # frontdoor sensor
+    state: 'off'
+  action:
+  - data:
+      data:
+        image: https://xxx.xxxxxxxxxxxx.xx/api/camera_proxy/camera.xxxxxxxxx?api_password=xxxxxxxxxxxx
+        tag: doorbell_all
+        actions:
+        - action: doorbell_refresh_state
+          title: Opened
+      message: The front door bell was pressed
+      title: Doorbell
+    service: notify.html
+  - data:
+      data:
+        image: https://xxx.xxxxxxxxxxxx.xx/api/camera_proxy/camera.xxxxxxxxx?api_password=xxxxxxxxxxxx
+        tag: doorbell_all
+      message: The front door bell was pressed!
+      title: Bell was pressed
+    service: notify.html
+- id: doorbell_html5_refresh
+  alias: HTML5 doorbell notiy dismiss
+  trigger:
+    platform: event
+    event_type: html5_notification.clicked
+    event_data:
+      action: doorbell_refresh_state
+  action:
+  - data:
+      data:
+        tag: doorbell_refresh_state
+    service: notify.html5_dismiss
+#======================================================
