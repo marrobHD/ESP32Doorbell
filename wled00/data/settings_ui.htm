@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=500">
+	<title>UI Settings</title>
+	<script>
+		function gId(s)
+		{
+			return document.getElementById(s);
+		}
+		function S()
+		{
+			GetV();Ct();
+		}
+		function H()
+		{
+			window.open("https://github.com/Aircoookie/WLED/wiki/Settings#user-interface-settings");
+		}
+		function B()
+		{
+			window.open("/settings","_self");
+		}
+		function Ct()
+		{
+			if (gId("co").selected)
+			{
+				gId("cth").style.display="block";
+			} else
+			{
+				gId("cth").style.display="none";
+			}
+		}
+		function GetV()
+		{
+			var d = document;
+		}
+	</script>
+	<style>
+		:root {
+			--aCol: #666;
+			--bCol: #333;
+			--cCol: #222;
+			--dCol: #666;
+      --tCol: #fff;
+			--sCol: #0000;
+			--cFn: Verdana;
+		}
+		body {
+			font-family: var(--cFn), Helvetica, sans-serif;
+			text-align: center;
+			background: var(--cCol);
+			color: var(--tCol);
+			line-height: 200%;
+			margin: 0;
+			background-attachment: fixed;
+		}
+		hr {
+			border-color: var(--dCol);
+			filter: drop-shadow( -5px -5px 5px var(--sCol) );
+		}
+		button {
+			background: var(--bCol);
+			color: var(--tCol);
+			border: 0.3ch solid var(--bCol);
+			display: inline-block;
+			font-family: var(--cFn), Helvetica, sans-serif;
+			filter: drop-shadow( -5px -5px 5px var(--sCol) );
+			font-size: 20px;
+			margin: 8px;
+			margin-top: 12px;
+		}
+		.helpB {
+			text-align: left;
+			position: absolute;
+			width:60px;
+		}
+		input {
+			background: var(--bCol);
+			color: var(--dCol);
+			border: 0.5ch solid var(--bCol);
+			filter: drop-shadow( -5px -5px 5px var(--sCol) );
+			font-family: var(--cFn), Helvetica, sans-serif;
+		}
+		select {
+			background: var(--bCol);
+			color: var(-tCol);
+			border: 0.5ch solid var(--bCol);
+			filter: drop-shadow( -5px -5px 5px var(--sCol) );
+			font-family: var(--cFn), Helvetica, sans-serif;
+		}
+		input[type=number] {
+			width: 3em;
+		}
+	</style>
+</head>
+<body onload="S()">
+	<form id="form_s" name="Sf" method="post">
+		<div class="helpB"><button type="button" onclick="H()">?</button></div>
+		<button type="button" onclick="B()">Back</button><button type="submit">Save</button><hr>
+		<h2>Web Setup</h2>
+		Server description: <input name="DS" maxlength="32"><br>
+    Sync button toggles both send and receive: <input type="checkbox" name="ST"><br><br>
+		<hr><button type="button" onclick="B()">Back</button><button type="submit">Save</button>
+	</form>
+</body>
+</html>
