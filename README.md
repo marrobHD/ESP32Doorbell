@@ -17,6 +17,8 @@
 ## About
 
 This is the code for a ESP32 doorbell with a display and camera that works with ESPHome and HomeAssistant.
+Example:
+https://youtu.be/QuBe9cWIcqs
 <!-- also includes... -->
 
 
@@ -24,7 +26,7 @@ This is the code for a ESP32 doorbell with a display and camera that works with 
 
 The code for the ESP32 doorbell, of course, provides the code for ESPHome and the configuration for HomeAssistant. Additionally, it comes also with these features:
 
-- Access your command line right from the Home Assistant frontend!
+- ...
 - Easy to change the configuration
   - Only have to change the definitions at the top in the ESPHome config.
   - Comes with all needed configurations.
@@ -52,7 +54,7 @@ Copy the Folder `ESPHome` into `/config/` from HomeAssistant. Next you have to a
 Now adjust the `esp32 doorbell.yaml` via the ESPHome editor. Do that also with your other configuration files.
 
 ### Step 4
-Now you´re ready to flash. Now you have to click on `validate` and if get "esp32 doorbell.yaml is valid 👍" you can flash the ESP32 camera module via an FTDI USB flash adapter. If your configuration fails, check it again, fix the error and flash it.
+Now you´re ready to flash. Now you have to click on `validate` and if you got "esp32 doorbell.yaml is valid 👍" you can flash the ESP32 camera module via an FTDI USB flash adapter. If your configuration fails, check it again, fix the error and flash it.
 
 ### Step 5
 Now check the serial console of the ESPHome flasher tool and wait for the module to successfully connect to the wifi. Next you have to go to the integrations page in HomeAssistand and add the ESPHome flashed chip via its ip address you saw in the serial console of the `ESPHome flasher`.
@@ -81,10 +83,16 @@ check [the contributor's page][contributors].
 [contributors]: https://github.com/marrobHD/ESP32Doorbell/graphs/contributors
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [license-shield]: https://img.shields.io/github/license/marrobHD/ESP32Doorbell.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/badge/maintainer-marrobHD-blue.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-Marlon-blue.svg?style=for-the-badge
 [marrobHD]: https://github.com/marrobHD
 [releases-shield]: https://img.shields.io/github/release/marrobHD/ESP32Doorbell.svg?style=for-the-badge
 [releases]: https://github.com/marrobHD/ESP32Doorbell/releases
 [esphome]: https://esphome.io
-[twitter]: https://img.shields.io/twitter/follow/mar_robHD.svg?style=social
+[contributors]: https://github.com/hassio-addons/addon-ssh/graphs/contributors
+[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/marrobHD/ESP32Doorbell.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-Marlon-blue.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/marrobHD/ESP32Doorbell.svg?style=for-the-badge
+[releases]: https://github.com/marrobHD/ESP32Doorbell/releases
+[twitter]: https://img.shields.io/twitter/follow/TechxHome.svg?style=social
 [github]: https://img.shields.io/github/followers/marrobHD.svg?style=social
