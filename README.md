@@ -95,8 +95,4 @@ check [the contributor's page][contributors].
 [releases-shield]: https://img.shields.io/github/release/marrobHD/ESP32Doorbell.svg?style=for-the-badge
 [releases]: https://github.com/marrobHD/ESP32Doorbell/releases
 [twitter]: https://img.shields.io/twitter/follow/TechxHome.svg?style=social
-<<<<<<< HEAD
 [github]: https://img.shields.io/github/followers/marrobHD.svg?style=social
-=======
-[github]: https://img.shields.io/github/followers/marrobHD.svg?style=social
->>>>>>> 98383b214fc5d78524fbf86de047b48e26e24e11
